@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+<!-- three.js library -->
+<script src='../examples/vendor/three.js/build/three.min.js'></script>
+<script src="../examples/vendor/three.js/examples/js/libs/stats.min.js"></script>
+<!-- ar.js -->
+<script src="../build/ar.js"></script>
+<script>THREEx.ArToolkitContext.baseURL = '../'</script>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+<div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
+<a href="https://github.com/jeromeetienne/AR.js/" target="_blank">AR.js</a>
+	 - three.js<br>
+Minimal Version<br>
+  <button id='toggle' style="width:20%; text-align:center"> Toggle Turn </button>
+  <p id="text" style ="color:red">
+color
+</p>
+</div>
+
+  
+</div>
+
+
+<script>
+
+// global variables
+var renderer, scene, camera;
+var stats;
+var arToolKitSource, arToolKitContext;
+var markerHiro;
+var isActive=false;
+var theta=0,omega=0;
+
+var isRed = true;
+init();
+animate();
+check_speed();
+
+$("#toggle").click(function() {
+  isActive = !isActive;
+});
+
+function init() {
+
+	// init renderer
+	renderer	= new THREE.WebGLRenderer({
+		// antialias	: true,
+		alpha: true
+	});
+	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+	// renderer.setPixelRatio( 1/2 );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.domElement.style.position = 'absolute'
+	renderer.domElement.style.top = '0px'
+	renderer.domElement.style.left = '0px'
+	document.body.appendChild( renderer.domElement );
+
+	stats = new Stats();
+	document.body.appendChild( stats.dom );
+
+	// init scene and camera
+	scene	= new THREE.Scene();
+	
+	// Create a BASIC camera
+	camera = new THREE.Camera();
+	scene.add(camera);
+
+	////////////////////////////////////////////////////////////////////////////////
+	//          handle arToolkitSource
+	////////////////////////////////////////////////////////////////////////////////
+
+	arToolkitSource = new THREEx.ArToolkitSource({
+		// to read from the webcam 
+		sourceType : 'webcam',
+	})
+
+	arToolkitSource.init(function onReady(){
+		onResize()
+	})
+	
+	// handle resize
+	window.addEventListener('resize', function(){
+		onResize()
+	})
+	function onResize(){
+		arToolkitSource.onResize()	
+		arToolkitSource.copySizeTo(renderer.domElement)	
+		if( arToolkitContext.arController !== null ){
+			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+		}	
+	}
+	////////////////////////////////////////////////////////////////////////////////
+	//          initialize arToolkitContext
+	////////////////////////////////////////////////////////////////////////////////
+	
+	arToolkitContext = new THREEx.ArToolkitContext({
+		cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+		detectionMode: 'mono',
+		maxDetectionRate: 30,
+		canvasWidth: 80*3,
+		canvasHeight: 60*3,
+	})
+	// initialize it
+	arToolkitContext.init(function onCompleted(){
+		// copy projection matrix to camera
+		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+	})
+
+	const geometry = new THREE.CircleGeometry( 1, 32 );
+	const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+	const circle = new THREE.Mesh( geometry, material );
+	scene.add( circle );
+
+	markerHiro = addMarkerHiro();
+	scene.add (markerHiro); 
+	
+}
+	
+function addMarkerHiro(){
+	let markerRoot = new THREE.Group()
+
+	var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+		type : 'pattern',
+		patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.hiro'
+	})
+
+	/*
+	var ball = new THREE.Mesh(new THREE.SphereGeometry (0.1, 20, 20),new THREE.MeshNormalMaterial());
+	markerRoot.add(ball);
+	
+	var cylinder= new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25 ,0.5 ,64),new THREE.MeshNormalMaterial());
+	markerRoot.add(cylinder);
+	*/
+	const geometry1  = new THREE.CircleGeometry( 1, 32 ,0,(2*Math.PI)/3);
+	const material1 = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+	const circle1 = new THREE.Mesh( geometry1, material1 );
+	markerRoot.add( circle1 );
+	
+	const geometry2  = new THREE.CircleGeometry( 1, 32 ,(2*Math.PI)/3,(2*Math.PI)/3);
+	const material2 = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+	const circle2 = new THREE.Mesh( geometry2, material2 );
+	markerRoot.add( circle2 );
+	
+	const geometry3  = new THREE.CircleGeometry( 1, 32 ,-(2*Math.PI)/3,(2*Math.PI)/3);
+	const material3 = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
+	const circle3 = new THREE.Mesh( geometry3, material3 );
+	markerRoot.add( circle3 );
+
+	var grid =new THREE.GridHelper (1, 10, 'red','white');
+	markerRoot.add(grid); 
+
+
+	//來自原點的方向。必須是單位向量
+		var dir = new THREE.Vector3(0, 1, 0);
+		
+		// 規格化方向向量(轉換為長度為1的向量)
+		dir.normalize();
+
+		// 箭頭開始的點
+		var origin = new THREE.Vector3(0, 0, 0);
+
+		// 箭頭的長度。預設值為1
+		var length = 1;
+
+		// 用於定義顏色的十六進位制值。預設值為0xffff00
+		var hex = 0xffff00;
+		
+		// 箭頭的長度。預設值為0.2 *length
+		var headLength = 1;
+		
+		// 箭頭寬度的長度。預設值為0.2 * headLength。
+		var headWidth = 0.2;
+
+		var arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex,headLength,headWidth);
+		markerRoot.add(arrowHelper);
+		
+	return markerRoot;
+}	
+function check_speed(x,xmin,xmax){
+	if (x>xmax)return xmax;
+	if (x<xmin)return xmin;
+	else return x;
+}
+
+function animate() {
+	var max=10,dt=0.2;
+
+	requestAnimationFrame (animate);
+	stats.update();
+	
+	if( arToolkitSource.ready === false )	return
+	arToolkitContext.update( arToolkitSource.domElement )
+
+	if (isActive) {
+		//theta+=0.01;
+		omega = omega + 5 * dt;
+	} else {
+		//theta=0;
+		omega = omega - 0.15 * dt;
+	}
+	omega=check_speed(omega,0,max);
+	theta += omega*dt;
+
+		
+	markerHiro.children[0].rotation.z=theta;
+	markerHiro.children[1].rotation.z=theta;
+	markerHiro.children[2].rotation.z=theta;
+	
+	if (markerHiro.children[0].rotation.z%(2*Math.PI)<(Math.PI/2)&&markerHiro.children[0].rotation.z>0||markerHiro.children[0].rotation.z%(2*Math.PI)>(11*Math.PI/6)){
+		$('#text').css ('color', 'red');		
+	}
+	else if (markerHiro.children[0].rotation.z%(2*Math.PI)<(7*Math.PI/6)&&markerHiro.children[0].rotation.z>(Math.PI/2)){
+		$('#text').css ('color', 'blue');	
+	}
+	else $('#text').css ('color', 'green');
+	renderer.render (scene, camera);	
+}
+
+</script></body>
+
+
