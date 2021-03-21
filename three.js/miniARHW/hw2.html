@@ -134,17 +134,17 @@ function addMarkerHiro(){
 	var cylinder= new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25 ,0.5 ,64),new THREE.MeshNormalMaterial());
 	markerRoot.add(cylinder);
 	*/
-	const geometry1  = new THREE.CircleGeometry( 1, 32 ,0,(2*Math.PI)/3);
+	const geometry1  = new THREE.CircleGeometry( 30.6/16, 32 ,0,(2*Math.PI)/3);
 	const material1 = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
 	const circle1 = new THREE.Mesh( geometry1, material1 );
 	markerRoot.add( circle1 );
 	
-	const geometry2  = new THREE.CircleGeometry( 1, 32 ,(2*Math.PI)/3,(2*Math.PI)/3);
+	const geometry2  = new THREE.CircleGeometry( 30.6/16, 32 ,(2*Math.PI)/3,(2*Math.PI)/3);
 	const material2 = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 	const circle2 = new THREE.Mesh( geometry2, material2 );
 	markerRoot.add( circle2 );
 	
-	const geometry3  = new THREE.CircleGeometry( 1, 32 ,-(2*Math.PI)/3,(2*Math.PI)/3);
+	const geometry3  = new THREE.CircleGeometry( 30.6/16, 32 ,-(2*Math.PI)/3,(2*Math.PI)/3);
 	const material3 = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
 	const circle3 = new THREE.Mesh( geometry3, material3 );
 	markerRoot.add( circle3 );
@@ -208,7 +208,7 @@ function animate() {
 	markerHiro.children[0].rotation.z=theta;
 	markerHiro.children[1].rotation.z=theta;
 	markerHiro.children[2].rotation.z=theta;
-	
+	//
 	if (markerHiro.children[0].rotation.z%(2*Math.PI)<(Math.PI/2)&&markerHiro.children[0].rotation.z>0||markerHiro.children[0].rotation.z%(2*Math.PI)>(11*Math.PI/6)){
 		$('#text').css ('color', 'red');		
 	}
