@@ -15,7 +15,7 @@
 	 - three.js<br>
 Minimal Version<br>
   <button id='toggle' style="width:20%; text-align:center"> Toggle Turn </button>
-  <p id="text" style ="color:red">
+  <p id="text" style ="background:white" >
 color
 </p>
 </div>
@@ -148,9 +148,13 @@ function addMarkerHiro(){
 	const material3 = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
 	const circle3 = new THREE.Mesh( geometry3, material3 );
 	markerRoot.add( circle3 );
-
-	var grid =new THREE.GridHelper (1, 10, 'red','white');
-	markerRoot.add(grid); 
+	
+	markerRoot.children[0].rotation.x -= Math.PI/2;
+	markerRoot.children[1].rotation.x -= Math.PI/2;
+	markerRoot.children[2].rotation.x -= Math.PI/2;
+	//markerRoot.children[3].rotation.x -= Math.PI/2;
+	//var grid =new THREE.GridHelper (1, 10, 'red','white');
+	//markerRoot.add(grid); 
 
 
 	//來自原點的方向。必須是單位向量
@@ -176,6 +180,7 @@ function addMarkerHiro(){
 
 		var arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex,headLength,headWidth);
 		markerRoot.add(arrowHelper);
+		markerRoot.children[3].rotation.x -= Math.PI/2;
 		
 	return markerRoot;
 }	
