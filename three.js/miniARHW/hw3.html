@@ -246,11 +246,14 @@ function init() {
 	//markerHiro = addMarkerHiro();
 	scene.add (markerRoot); 
 	
-	if (_iOSDevice)
-    	window.addEventListener('touchstart', onTouchStart, false);
+	if (_iOSDevice){
+		window.addEventListener('touchstart', onTouchStart, false);
+		window.addEventListener('touchend', onTouchEnd, false);
+	}
+    	
 	else
 		window.addEventListener ('mousedown', onMouseDown, false);
-
+		window.addEventListener ('mouseup', onMouseUp, false);
 	
 }
 
@@ -283,7 +286,7 @@ function animate() {
 		omega = omega + 5 * dt;
 	} else {
 		//theta=0;
-		omega = omega - 0.15 * dt;
+		omega = omega - 0.3 * dt;
 	}
 	omega=check_speed(omega,0,max);
 	theta += omega*dt;
@@ -322,9 +325,21 @@ function onMouseDown (event) {
 	event.preventDefault();
 	let ndcX = (event.clientX / window.innerWidth) * 2 - 1;
 	let ndcY = -(event.clientY / window.innerHeight) * 2 + 1;
-
-	pickCompute (ndcX, ndcY);		
+	
+	let hit = pickCompute (ndcX, ndcY);		
+	
+	if (hit){
+		cubeSpin=true;
+		down=true;
+	}	
 }	
+function onMouseUp (event) {
+	if(cubeSpin===true)
+	cubeSpin=false;
+	
+	down = false;
+}	
+
 
 function onTouchStart (event) {
 	console.log ('in touch start')
@@ -335,11 +350,20 @@ function onTouchStart (event) {
 		let ndcX = ( event.touches[0].pageX / window.innerWidth ) * 2 - 1;
 		let ndcY = - ( event.touches[0].pageY / window.innerHeight ) * 2 + 1;
 	
-		pickCompute (ndcX, ndcY);		
+		pickCompute (ndcX, ndcY);	
 		
 	}	
 }
-
+function onTouchEnd (event) {
+	console.log ('in touch end')
+	event.preventDefault();
+   if (cubeSpin) {
+        
+		cubeSpin=!cubeSpin;
+				
+		
+	}	
+}
 </script></body>
 
 
